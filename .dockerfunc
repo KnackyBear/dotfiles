@@ -1,0 +1,160 @@
+#!/bin/bash
+# Bash wrappers for docker run commands
+# Inspired by Jess Frazelle <jess@linux.com>
+
+#
+# Helper Functions
+#
+dcleanup(){
+	local containers
+	mapfile -t containers < <(docker ps -aq 2>/dev/null)
+	docker rm "${containers[@]}" 2>/dev/null
+	local volumes
+	mapfile -t volumes < <(docker ps --filter status=exited -q 2>/dev/null)
+	docker rm -v "${volumes[@]}" 2>/dev/null
+	local images
+	mapfile -t images < <(docker images --filter dangling=true -q 2>/dev/null)
+	docker rmi "${images[@]}" 2>/dev/null
+}
+
+del_stopped(){
+	local name=$1
+	local state
+	state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
+
+	if [[ "$state" == "false" ]]; then
+		docker rm "$name"
+	fi
+}
+
+rmctr(){
+	# shellcheck disable=SC2068
+	docker rm -f $@ 2>/dev/null || true
+}
+
+relies_on(){
+	for container in "$@"; do
+		local state
+		state=$(docker inspect --format "{{.State.Running}}" "$container" 2>/dev/null)
+
+		if [[ "$state" == "false" ]] || [[ "$state" == "" ]]; then
+			echo "$container is not running, starting it for you."
+			$container
+		fi
+	done
+}
+
+#
+# Dev environment
+#
+
+mvn() {
+	docker run --rm \
+		--name=maven \
+		-v $(pwd):/project \
+		-w /project \
+		--entrypoint mvn \
+		maven:3.6.0 $*
+}
+
+npm() {
+	docker run --rm \
+		--name=npm \
+		-v $(pwd):/project \
+		-w /project \
+		--entrypoint npm \
+		node:lts $*
+}
+
+node() {
+	docker run --rm \
+		--name=node \
+		-v $(pwd):/project \
+		-w /project \
+		--entrypoint node \
+		node:lts $*
+}
+
+#
+# Others
+#
+
+cheese(){
+	del_stopped cheese
+
+	docker run -d \
+		--net host \
+		-v /etc/localtime:/etc/localtime:ro \
+		-v /etc/passwd:/etc/passwd:ro \
+		-v "${HOME}:${HOME}" \
+		-e "DISPLAY=unix${DISPLAY}" \
+		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
+    	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
+		--device /dev/snd \
+		--device /dev/dri \
+		--device /dev/video0 \
+		--device /dev/video1 \
+		--device /dev/bus \
+		-u $(id -u):$(id -g) \
+		--name cheese \
+		jnvinet/cheese "$@"
+}
+
+firefox(){
+	del_stopped firefox
+
+	docker run -d \
+		--memory 2gb \
+		--net host \
+		--cpuset-cpus 0 \
+		-v /etc/localtime:/etc/localtime:ro \
+		-v /etc/passwd:/etc/passwd:ro \
+		-v "${HOME}:${HOME}" \
+		-e "DISPLAY=unix${DISPLAY}" \
+		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
+    	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
+		--device /dev/snd \
+		--device /dev/dri \
+		-u $(id -u):$(id -g) \
+		--name firefox \
+		jnvinet/firefox "$@"
+
+	# exit current shell
+	exit 0
+}
+
+spotify(){
+	del_stopped spotify
+
+	docker run -d \
+		--net host \
+		-v /etc/localtime:/etc/localtime:ro \
+		-v /etc/passwd:/etc/passwd:ro \
+		-v "${HOME}:${HOME}" \
+		-e "DISPLAY=unix${DISPLAY}" \
+		-e QT_DEVICE_PIXEL_RATIO \
+		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
+    	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
+		--device /dev/snd \
+		--device /dev/dri \
+		-u $(id -u):$(id -g) \
+		--name spotify \
+		jnvinet/spotify
+}
+
+vs(){
+	del_stopped vscode
+
+	docker run -d \
+		--net host \
+		-v /etc/localtime:/etc/localtime:ro \
+		-v /etc/passwd:/etc/passwd:ro \
+		-v "${HOME}:${HOME}" \
+		-e "DISPLAY=unix${DISPLAY}" \
+		--device /dev/dri \
+		-u $(id -u):$(id -g) \
+		-w $(pwd) \
+		--name vscode \
+		jnvinet/vscode "$@"
+
+}
