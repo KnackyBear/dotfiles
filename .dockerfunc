@@ -143,7 +143,7 @@ spotify(){
 }
 
 vs(){
-	del_stopped vscode
+	del_stopped vscodium
 
 	docker run -d \
 		--net host \
@@ -154,7 +154,6 @@ vs(){
 		--device /dev/dri \
 		-u $(id -u):$(id -g) \
 		-w $(pwd) \
-		--name vscode \
-		jnvinet/vscode "$@"
-
+		--name vscodium \
+		jnvinet/vscodium "$@"
 }
