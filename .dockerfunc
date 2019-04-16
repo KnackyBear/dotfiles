@@ -139,7 +139,7 @@ spotify(){
 		--device /dev/dri \
 		-u $(id -u):$(id -g) \
 		--name spotify \
-		jnvinet/spotify
+		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
 }
 
 vs(){
