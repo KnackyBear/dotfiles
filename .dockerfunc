@@ -196,13 +196,6 @@ gimp(){
 		jnvinet/gimp "$@"
 }
 
-hostess(){
-	docker run --rm -it \
-		-v /etc/hosts:/etc/hosts \
-		--name hostess \
-		jnvinet/hostess "$@"
-}
-
 spotify(){
 	del_stopped spotify
 
