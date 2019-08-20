@@ -39,6 +39,19 @@ del_stopped(){
 	fi
 }
 
+del_stopped_app(){
+	local appname=$1
+	local state
+
+	for id in $(docker ps -a --filter label="app=$appname")
+	do
+		state=$(docker inspect --format "{{.State.Running}}" "$id" 2>/dev/null)
+		if [[ "$state" == "false" ]]; then
+			docker rm "$id"
+		fi
+	done
+}
+
 rmctr(){
 	# shellcheck disable=SC2068
 	docker rm -f $@ 2>/dev/null || true
@@ -143,7 +156,7 @@ chromium(){
 		--device /dev/video0 \
    		-u $(id -u):$(id -g) \
 		--name chromium \
-		jnvinet/chromium
+		jnvinet/chromium "$@"
 }
 
 firefox(){
@@ -209,7 +222,10 @@ torproxy(){
 }
 
 vs(){
-	del_stopped vscodium
+	del_stopped_app vscodium
+
+	local uuid 
+	UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
 
 	docker run -d \
 		--net host \
@@ -220,6 +236,6 @@ vs(){
 		--device /dev/dri \
 		-u $(id -u):$(id -g) \
 		-w $(pwd) \
-		--name vscodium \
+		--name vscodium-$UUID \
 		jnvinet/vscodium "$@"
 }
