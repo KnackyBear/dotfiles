@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # update path
-export PATH=/usr/local/bin:${PATH}:/sbin
+export PATH=/usr/local/bin:${PATH}:/sbin:/home/jvinet/go/bin
