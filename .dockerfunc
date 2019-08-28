@@ -18,25 +18,29 @@ dcleanup(){
 }
 
 dkill(){
-	local name=$1
-	local state
-	state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
+	for container in "$@"; do
+		local name=$container
+		local state
+		state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
 
-	if [[ "$state" == "true" ]]; then
-		echo "Container $name still running... stop it for you."
-		docker stop "$name"
-	fi
-	del_stopped "$name"
+		if [[ "$state" == "true" ]]; then
+			echo "Container $name still running... stop it for you."
+			docker stop "$name"
+		fi
+		del_stopped "$name"
+	done
 }
 
 del_stopped(){
-	local name=$1
-	local state
-	state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
+	for container in "$@"; do
+		local name=$container
+		local state
+		state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
 
-	if [[ "$state" == "false" ]]; then
-		docker rm "$name"
-	fi
+		if [[ "$state" == "false" ]]; then
+			docker rm "$name"
+		fi
+	done
 }
 
 del_stopped_app(){
@@ -247,6 +251,10 @@ kafka() {
 
 kafka-topics() {
 	docker run --net host --rm -it confluentinc/cp-kafka:5.3.0 kafka-topics "$@"
+}
+
+kafka-console-consumer() {
+	docker run --net host --rm -it confluentinc/cp-kafka:5.3.0 kafka-console-consumer "$@"
 }
 
 # creates an nginx config for a local route
