@@ -1,2 +1,2 @@
-# envfiles
-Personnal Nux Environment
+# dotfiles
+Personnal dotfiles
