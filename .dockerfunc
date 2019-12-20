@@ -156,8 +156,6 @@ chromium(){
 
 	docker run -d \
 		--net host \
-		--cpuset-cpus 0 \
-		--memory 3gb \
 		-v /etc/localtime:/etc/localtime:ro \
    		-v /etc/passwd:/etc/passwd:ro \
 		-e "DISPLAY=unix${DISPLAY}" \
