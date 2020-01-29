@@ -117,6 +117,21 @@ ansible() {
  		jnvinet/ansible "$@"
 }
 
+calibre(){
+	dkill calibre
+
+	docker run -d \
+		--net host \
+		-v /etc/localtime:/etc/localtime:ro \
+   		-v /etc/passwd:/etc/passwd:ro \
+		-e "DISPLAY=unix${DISPLAY}" \
+		-v "${HOME}:${HOME}" \
+		--device /dev/bus/usb \
+   		-u $(id -u):$(id -g) \
+		--name calibre \
+		jnvinet/calibre "$@"
+}
+
 chrome(){
 	dkill chrome
 
