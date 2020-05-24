@@ -74,37 +74,6 @@ relies_on(){
 }
 
 #
-# Dev environment
-#
-
-mvn() {
-	docker run --rm \
-		--name=maven \
-		-v $(pwd):/project \
-		-w /project \
-		--entrypoint mvn \
-		maven:3.6.0 $*
-}
-
-npm() {
-	docker run --rm \
-		--name=npm \
-		-v $(pwd):/project \
-		-w /project \
-		--entrypoint npm \
-		node:lts $*
-}
-
-node() {
-	docker run --rm \
-		--name=node \
-		-v $(pwd):/project \
-		-w /project \
-		--entrypoint node \
-		node:lts $*
-}
-
-#
 # Others
 #
 
@@ -171,6 +140,14 @@ chrome(){
 		jnvinet/chrome \
 		--proxy-server="$proxy" \
 		--host-resolver-rules="$map" "$args"
+}
+
+dev() {
+	docker run -it --rm \
+		--net host \
+		-v $PWD:/build \
+		--name devbox \
+		jnvinet/devbox "$@"
 }
 
 firefox(){

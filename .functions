@@ -3,7 +3,7 @@
 # knock knock knock
 knock() {
 	read -p "Who's there ? " keys
-	for key in $keys;do nmap -Pn --host-timeout 201 --max-retries 0 -p $key julienvinet.dev > /dev/null && echo -n knock... && sleep 1;done
+	for key in $keys;do nmap -Pn --host-timeout 201 --max-retries 0 -p $key $1 > /dev/null && echo -n knock... && sleep 1;done
 }
 
 # Simple calculator
