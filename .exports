@@ -21,3 +21,6 @@ export MANPAGER="less -X";
 # hidpi for gtk apps
 export QT_DEVICE_PIXEL_RATIO=2
 
+# Docker or podman ?
+export CONTAINER_MANAGER="docker"
+

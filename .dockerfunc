@@ -17,6 +17,12 @@ dcleanup(){
 	docker rmi "${images[@]}" 2>/dev/null
 }
 
+pcleanup(){
+	podman container prune -y
+	podman volumes prune -y
+	podman rmi -a
+}
+
 dkill(){
 	for container in "$@"; do
 		local name=$container
@@ -278,20 +284,15 @@ nginx(){
 }
 
 spotify(){
-	del_stopped spotify
-
-	docker run -d \
+	podman container rm spotify || true
+	podman run -d \
 		--net host \
-		-v /etc/localtime:/etc/localtime:ro \
-		-v /etc/passwd:/etc/passwd:ro \
-		-v "${HOME}:${HOME}" \
+		-v "${HOME}/.config/spotify:/root/.config/spotify" \
 		-e "DISPLAY=unix${DISPLAY}" \
-		-e QT_DEVICE_PIXEL_RATIO \
 		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
     	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
 		--device /dev/snd \
 		--device /dev/dri \
-		-u $(id -u):$(id -g) \
 		--name spotify \
 		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
 }
