@@ -16,10 +16,18 @@ dotfiles: ## Installs dotfiles
 		f=$$(basename $$file); \
 		ln -sfn $$file $(HOME)/$$f; \
 	done;
+	gpg --list-keys || true;
+	mkdir -p $(HOME)/.gnupg
+	for file in $(shell find $(CURDIR)/.gnupg); do \
+		f=$$(basename $$file); \
+		ln -sfn $$file $(HOME)/.gnupg/$$f; \
+	done; \
+	ln -fn $(CURDIR)/gitignore $(HOME)/.gitignore;
 	git update-index --skip-worktree $(CURDIR)/.gitconfig;
-	mkdir -p $(HOME)/.local/share;
-	ln -snf $(CURDIR)/.fonts $(HOME)/.local/share/fonts;
 	ln -snf $(CURDIR)/.bash_profile $(HOME)/.profile;
+	if [ -f /usr/local/bin/pinentry ]; then \
+		sudo ln -snf /usr/bin/pinentry /usr/local/bin/pinentry; \
+	fi;
 	mkdir -p $(HOME)/Pictures;
 	ln -snf $(CURDIR)/737474.png $(HOME)/Pictures/737474.png;
 
