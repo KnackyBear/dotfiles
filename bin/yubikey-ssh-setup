@@ -19,7 +19,7 @@ SUBKEY_EXPIRE=${SUBKEY_EXPIRE:=1y}
 SURNAME=${SURNAME:="Vinet"}
 GIVENNAME=${GIVENNAME:="Julien"}
 EMAIL=${EMAIL:=$GMAIL}
-PUBLIC_KEY_URL=${PUBLIC_KEY_URL:="https://keybase.io/jessie/key.asc"}
+PUBLIC_KEY_URL=${PUBLIC_KEY_URL:="https://keybase.io/knacky/key.asc"}
 KEYID=${KEYID:=$GPGKEY}
 SEX=${SEX:=H}
 
