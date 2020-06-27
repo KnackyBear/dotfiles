@@ -91,5 +91,8 @@ alias pubkey="more ~/.ssh/id_rsa.pub | xclip -selection clipboard | echo '=> Pub
 # Pipe my private key to my clipboard.
 alias prikey="more ~/.ssh/id_rsa | xclip -selection clipboard | echo '=> Private key copied to pasteboard.'"
 
+# Reset gpg pinentry
+alias resetpin="gpg-connect-agent updatestartuptty /bye > /dev/null"
+
 # For work
 alias chromium.work='chromium --proxy-server="proxylclcentral.id.fr.cly:8080" --proxy-bypass-list="localhost,127.0.0.1,10.*,*.fr.cly"'

@@ -31,6 +31,13 @@ dotfiles: ## Installs dotfiles
 	mkdir -p $(HOME)/Pictures;
 	ln -snf $(CURDIR)/737474.png $(HOME)/Pictures/737474.png;
 
+.PHONY: udev
+udev: ## Installs udev rules
+	for file in $(shell find $(CURDIR)/udev -type f -not -name ".*.swp"); do \
+		f=$$(basename $$file); \
+		sudo ln -sf $$file /etc/udev/rules.d/$$f; \
+	done
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
