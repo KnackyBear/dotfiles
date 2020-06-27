@@ -18,9 +18,9 @@ dcleanup(){
 }
 
 pcleanup(){
-	podman container prune -y
-	podman volumes prune -y
-	podman rmi -a
+	podman container prune -f
+	podman volume prune -f
+	podman rmi -a 2> /dev/null
 }
 
 dkill(){
@@ -35,6 +35,21 @@ dkill(){
 		fi
 		del_stopped "$name"
 	done
+}
+
+podkill(){
+	for container in "$@"; do
+		local name=$container
+		local state
+		state=$(podman container inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
+
+		if [[ "$state" == "true" ]]; then
+			echo "Container $name still running... stop it for you."
+			podman container stop "$name"
+		fi
+		podman container rm "$name"
+	done
+
 }
 
 del_stopped(){
@@ -149,8 +164,7 @@ chrome(){
 }
 
 dev() {
-	docker run -it --rm \
-		--net host \
+	podman run -it --rm \
 		-v $PWD:/build \
 		--name devbox \
 		jnvinet/devbox "$@"
@@ -270,21 +284,20 @@ nginx_config(){
 }
 
 nginx(){
-	del_stopped nginx
+	podman container rm nginx || true
 
-	docker run -d \
+	podman run -d \
 		--restart always \
 		-v "${HOME}/.nginx:/etc/nginx" \
-		--net host \
 		--name nginx \
 		nginx
 
 	# add domain to hosts & open nginx
-	sudo hostess add julien 127.0.0.1
+	hostess add mynginx 127.0.0.1
 }
 
 spotify(){
-	podman container rm spotify || true
+	podman container rm spotify || echo "Container spotify not running..."
 	podman run -d \
 		--net host \
 		-v "${HOME}/.config/spotify:/root/.config/spotify" \
@@ -298,16 +311,17 @@ spotify(){
 }
 
 torproxy(){
-	del_stopped torproxy
+	podman container stop torproxy && podman container rm torproxy || echo "Container torproxy not running..."
 
-	docker run -d \
+	podman run -d \
 		--restart always \
 		-v /etc/localtime:/etc/localtime:ro \
 		-p 9050:9050 \
 		--name torproxy \
 		jnvinet/tor-proxy
 
-	hostess add torproxy "$(docker inspect --format '{{.NetworkSettings.Networks.bridge.IPAddress}}' torproxy)"
+	#hostess add torproxy "$(docker inspect --format '{{.NetworkSettings.Networks.bridge.IPAddress}}' torproxy)"
+	hostess add torproxy 127.0.0.1
 }
 
 vs(){
