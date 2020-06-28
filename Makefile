@@ -1,5 +1,5 @@
 .PHONY: all
-all: bin dotfiles
+all: bin udev dotfiles
 
 .PHONY: bin
 bin: ## Installs the bin directory
