@@ -165,6 +165,7 @@ chrome(){
 
 dev() {
 	podman run -it --rm \
+		--net host \
 		-v $PWD:/build \
 		--name devbox \
 		jnvinet/devbox "$@"
