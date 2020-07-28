@@ -298,8 +298,9 @@ nginx(){
 }
 
 spotify(){
-	dkill spotify
-	docker run -d \
+	podman container stop spotify && podman container rm spotify || echo "Container spotify not running..."
+
+	podman run -d \
 		--net host \
 		-v "${HOME}/.config/spotify:/root/.config/spotify" \
 		-e "DISPLAY=unix${DISPLAY}" \
@@ -307,7 +308,6 @@ spotify(){
     	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
 		--device /dev/snd \
 		--device /dev/dri \
-		-u $(id -u):$(id -g) \
 		--name spotify \
 		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
 }
@@ -315,7 +315,7 @@ spotify(){
 torproxy(){
 	podman container stop torproxy && podman container rm torproxy || echo "Container torproxy not running..."
 
-	docker run -d \
+	podman run -d \
 		--restart always \
 		-v /etc/localtime:/etc/localtime:ro \
 		-p 9050:9050 \
