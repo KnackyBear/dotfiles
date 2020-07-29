@@ -297,20 +297,20 @@ nginx(){
 	hostess add mynginx 127.0.0.1
 }
 
-spotify(){
-	podman container stop spotify && podman container rm spotify || echo "Container spotify not running..."
-
-	podman run -d \
-		--net host \
-		-v "${HOME}/.config/spotify:/root/.config/spotify" \
-		-e "DISPLAY=unix${DISPLAY}" \
-		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
-    	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
-		--device /dev/snd \
-		--device /dev/dri \
-		--name spotify \
-		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
-}
+#spotify(){
+#	podman container stop spotify && podman container rm spotify || echo "Container spotify not running..."
+#
+#	podman run -d \
+#		--net host \
+#		-v "${HOME}/.config/spotify:/root/.config/spotify" \
+#		-e "DISPLAY=unix${DISPLAY}" \
+#		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
+#   	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
+#		--device /dev/snd \
+#		--device /dev/dri \
+#		--name spotify \
+#		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
+#}
 
 torproxy(){
 	podman container stop torproxy && podman container rm torproxy || echo "Container torproxy not running..."
