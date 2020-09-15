@@ -386,7 +386,7 @@ xname(){
 	local window_id=$1
 
 	if [[ -z $window_id ]]; then
-		echo "Please specifiy a window id, you find this with 'xwininfo'"
+		echo "Please specify a window id, you find this with 'xwininfo'"
 
 		return 1
 	fi
@@ -406,6 +406,17 @@ xname(){
 
 gitsetoriginnopush() {
 	git remote set-url --push origin no_push
+}
+
+scanimagetopng() {
+	local filename=$1
+
+	if [[ -z $filename ]]; then
+		echo "Please specify a filename"
+		return 1
+	fi
+
+	scanimage --device "smfp:usb;04e8;3441;Z5EXBFEZC02954P" --format=png --output-file "$1" --progress
 }
 
 proxy_on() {
