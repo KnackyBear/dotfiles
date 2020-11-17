@@ -5,7 +5,7 @@
 #
 # Helper Functions
 #
-dcleanup(){
+d_cleanup(){
 	local containers
 	mapfile -t containers < <(docker ps -aq 2>/dev/null)
 	docker rm "${containers[@]}" 2>/dev/null
@@ -17,13 +17,20 @@ dcleanup(){
 	docker rmi "${images[@]}" 2>/dev/null
 }
 
-pcleanup(){
+p_cleanup(){
 	podman container prune -f
 	podman volume prune -f
 	podman rmi -a 2> /dev/null
 }
 
-dkill(){
+d_ips() {
+	for i in $(docker ps -aq 2> /dev/null);do 
+		docker inspect -f '{{.Name}} {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $i
+	done
+
+}
+
+d_kill(){
 	for container in "$@"; do
 		local name=$container
 		local state
@@ -37,7 +44,7 @@ dkill(){
 	done
 }
 
-podkill(){
+p_kill(){
 	for container in "$@"; do
 		local name=$container
 		local state
@@ -98,7 +105,7 @@ relies_on(){
 # Others
 #
 
-ansible() {
+d_ansible() {
 	docker run --rm \
  		-it \
  		-v ${PWD}/hosts:/etc/ansible/hosts \
@@ -107,8 +114,8 @@ ansible() {
  		jnvinet/ansible "$@"
 }
 
-calibre(){
-	dkill calibre
+d_calibre(){
+	d_kill calibre
 
 	docker run -d \
 		--net host \
@@ -122,8 +129,8 @@ calibre(){
 		jnvinet/calibre "$@"
 }
 
-chrome(){
-	dkill chrome
+d_chrome(){
+	d_kill chrome
 
 	# add flags for proxy if passed
 	local proxy=
@@ -163,7 +170,7 @@ chrome(){
 		--host-resolver-rules="$map" "$args"
 }
 
-dev() {
+d_dev() {
 	podman run -it --rm \
 		--net host \
 		-v $PWD:/build \
@@ -171,7 +178,7 @@ dev() {
 		jnvinet/devbox "$@"
 }
 
-firefox(){
+d_firefox(){
 	del_stopped firefox
 
 	docker run -d \
@@ -194,7 +201,7 @@ firefox(){
 	exit 0
 }
 
-gimp(){
+d_gimp(){
 	del_stopped gimp
 	
 	docker run -d \
@@ -208,14 +215,14 @@ gimp(){
 		jnvinet/gimp "$@"
 }
 
-hostess() {
+d_hostess() {
 	docker run --rm -it \
 		-v /etc/hosts:/etc/hosts \
 		--name hostess \
 		jnvinet/hostess "$@"
 }
 
-intellij() {
+d_intellij() {
 	del_stopped intellij
 
 	docker run -d \
@@ -229,7 +236,7 @@ intellij() {
 		jnvinet/intellij "$@"
 }
 
-kafka() {
+d_kafka() {
 	del_stopped kafka
 	relies_on zookeeper
 
@@ -243,16 +250,16 @@ kafka() {
 		confluentinc/cp-kafka:5.3.0
 }
 
-kafka-topics() {
+d_kafka-topics() {
 	docker run --net host --rm -it confluentinc/cp-kafka:5.3.0 kafka-topics "$@"
 }
 
-kafka-console-consumer() {
+d_kafka-console-consumer() {
 	docker run --net host --rm -it confluentinc/cp-kafka:5.3.0 kafka-console-consumer "$@"
 }
 
 # creates an nginx config for a local route
-nginx_config(){
+d_nginx_config(){
 	server=$1
 	route=$2
 
@@ -278,13 +285,13 @@ nginx_config(){
 	docker restart nginx
 
 	# add host to /etc/hosts
-	hostess add "$server" 127.0.0.1
+	d_hostess add "$server" 127.0.0.1
 
 	# open browser
 	browser-exec "http://${server}"
 }
 
-nginx(){
+d_nginx(){
 	podman container rm nginx || true
 
 	podman run -d \
@@ -294,25 +301,10 @@ nginx(){
 		nginx
 
 	# add domain to hosts & open nginx
-	hostess add mynginx 127.0.0.1
+	d_hostess add mynginx 127.0.0.1
 }
 
-#spotify(){
-#	podman container stop spotify && podman container rm spotify || echo "Container spotify not running..."
-#
-#	podman run -d \
-#		--net host \
-#		-v "${HOME}/.config/spotify:/root/.config/spotify" \
-#		-e "DISPLAY=unix${DISPLAY}" \
-#		-e "PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native" \
-#   	-v "${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native" \
-#		--device /dev/snd \
-#		--device /dev/dri \
-#		--name spotify \
-#		jnvinet/spotify "--force-device-scale-factor=1.5 $@"
-#}
-
-torproxy(){
+d_torproxy(){
 	podman container stop torproxy && podman container rm torproxy || echo "Container torproxy not running..."
 
 	podman run -d \
@@ -326,26 +318,7 @@ torproxy(){
 	hostess add torproxy 127.0.0.1
 }
 
-vs(){
-	del_stopped_app vscodium
-
-	local uuid 
-	UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
-
-	docker run -d \
-		--net host \
-		-v /etc/localtime:/etc/localtime:ro \
-		-v /etc/passwd:/etc/passwd:ro \
-		-v "${HOME}:${HOME}" \
-		-e "DISPLAY=unix${DISPLAY}" \
-		--device /dev/dri \
-		-u $(id -u):$(id -g) \
-		-w $(pwd) \
-		--name vscodium-$UUID \
-		jnvinet/vscodium "$@"
-}
-
-zookeeper() {
+d_zookeeper() {
 	del_stopped zookeeper
 
 	docker run -d \

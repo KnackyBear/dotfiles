@@ -161,3 +161,5 @@ for file in ~/.{bash_prompt,aliases,functions,path,dockerfunc,extra,exports}; do
 done
 unset file
 source /usr/share/nvm/init-nvm.sh
+
+eval "$(pyenv init -)"
