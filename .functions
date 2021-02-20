@@ -3,7 +3,7 @@
 # knock knock knock
 knock() {
 	read -p "Who's there ? " keys
-	for key in $keys;do nmap -Pn --host-timeout 201 --max-retries 0 -p $key $1 > /dev/null && echo -n knock... && sleep 1;done
+	for key in $keys;do nmap -Pn --host-timeout 201 --max-retries 0 -p $key $1 > /dev/null 2>&1 && echo -n knock... && sleep 1;done
 }
 
 # Simple calculator
@@ -416,7 +416,7 @@ scanimagetopng() {
 		return 1
 	fi
 
-	scanimage --device "smfp:usb;04e8;3441;Z5EXBFEZC02954P" --format=png --output-file "$1" --progress
+	scanimage --device "xerox_mfp:libusb:001:005" --format=png --output-file "$1" --progress
 }
 
 proxy_on() {
