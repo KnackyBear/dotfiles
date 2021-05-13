@@ -19,7 +19,7 @@ export LC_ALL="en_US.UTF-8";
 export MANPAGER="less -X";
 
 # hidpi for gtk apps
-export QT_DEVICE_PIXEL_RATIO=2
+#export QT_DEVICE_PIXEL_RATIO=2
 
 # Docker or podman ?
 export CONTAINER_MANAGER="docker"
@@ -28,3 +28,6 @@ export CONTAINER_MANAGER="docker"
 export GOROOT=/usr/local/go
 export GOPATH=/opt/golang/gopath
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+
+# python
+export PATH=$PATH:$HOME/.local/bin
